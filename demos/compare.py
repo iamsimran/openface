@@ -26,6 +26,8 @@ import argparse
 import cv2
 import itertools
 import os
+from tqdm import tqdm
+import statistics as stats
 
 import numpy as np
 np.set_printoptions(precision=2)
@@ -97,8 +99,25 @@ def getRep(imgPath):
         print("-----\n")
     return rep
 
+fsc_list = []
 for (img1, img2) in itertools.combinations(args.imgs, 2):
     d = getRep(img1) - getRep(img2)
-    print("Comparing {} with {}.".format(img1, img2))
-    print(
-        "  + Squared l2 distance between representations: {:0.3f}".format(np.dot(d, d)))
+    fsc = np.dot(d, d)
+    fsc_list.append(fsc)
+
+    #print("Comparing {} with {}.".format(img1, img2))
+    #print(
+    #    "  + Squared l2 distance between representations: {:0.3f}".format(np.dot(d, d)))
+    print("{} --> {} --> {:0.3f}".format(img1, img2, fsc))
+
+print("Mean: {:0.3f}".format(stats.mean(fsc_list)))
+print("Standard Deviation: {:0.3f}".format(stats.stdev(fsc_list)))
+print("Variance: {:0.3f}".format(stats.variance(fsc_list)))
+'''
+for (img1, img2) in tqdm(itertools.combinations(args.imgs, 2),desc="Calculation progress"):
+    d = getRep(img1) - getRep(img2)
+    fsc = np.dot(d, d)
+    #print("Comparing {} with {}.".format(img1, img2))
+    #print(
+    #    "  + Squared l2 distance between representations: {:0.3f}".format(np.dot(d, d)))
+    print("{} --> {} --> {:0.3f}".format(img1, img2, fsc))'''
